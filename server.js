@@ -11,6 +11,9 @@ import restaurantRoutes from './Routes/RestaurantRoutes.js'
 import siteRoutes from './Routes/SiteRoutes.js'
 import storyRoutes from './Routes/StoryRoutes.js'
 import userRoutes from './Routes/UserRoutes.js'
+import trailRoutes from './Routes/TrailRoutes.js'
+import eventRoutes from "./Routes/EventRoutes.js";
+
 const app = express();
 
 app.use(session({
@@ -49,3 +52,5 @@ app.use('/restaurant',restaurantRoutes)
 app.use('/site',siteRoutes)
 app.use('/story',storyRoutes)
 app.use('/user',userRoutes)
+app.use('/trail',trailRoutes)
+app.use('/event',eventRoutes)

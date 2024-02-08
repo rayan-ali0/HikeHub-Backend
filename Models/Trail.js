@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const Trail = new Schema({
     title: {
         type: String,
-        required: true, 
+        required: true,
     },
     description: {
         type: String,
@@ -34,11 +34,11 @@ const Trail = new Schema({
     sites: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Site',
-      }],
+    }],
     location: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location',
-      },
+    },
 
 }
     ,
