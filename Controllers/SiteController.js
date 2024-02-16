@@ -10,9 +10,14 @@ export const siteController = {
                 return res.status(400).json({ message: "Fields are required" })
 
             }
+            const siteExist=await Site.findOne({name:name})
+            if(siteExist){
+                return res.status(400).json({ message: "This name already Exist" })
+
+            }
             const site = await Site.create({ name, description, image })
             if (site) {
-                return res.status(200).json(Site)
+                return res.status(200).json(site)
             }
             else {
                 return res.status(400).json({ message: "Error Creating the Site" })

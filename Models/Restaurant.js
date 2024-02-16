@@ -20,7 +20,8 @@ const Restaurant = new Schema({
     ,
     {
         timestamps: true
-    });
+    }
+    );
 
 
 export default mongoose.model("Restaurant", Restaurant);

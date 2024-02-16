@@ -13,8 +13,11 @@ import storyRoutes from './Routes/StoryRoutes.js'
 import userRoutes from './Routes/UserRoutes.js'
 import trailRoutes from './Routes/TrailRoutes.js'
 import eventRoutes from "./Routes/EventRoutes.js";
+import {login} from './Middlwares/UserAuth.js'
+import {logOut} from './Middlwares/UserAuth.js'
 
 const app = express();
+app.use(express.json())
 
 app.use(session({
     secret: 'your-secret-key',
@@ -30,7 +33,6 @@ const corsOption = {
 
 app.use(cors(corsOption));
 app.use(cookieParser());
-app.use(express.json())
 app.use(bodyParser.urlencoded({extended: true}));
 
 const PORT = process.env.PORT;
@@ -46,7 +48,8 @@ app.listen(PORT, (error) =>{
 connectDB()
 
 app.use('/images',express.static('images'))
-
+app.post('/login',login)
+app.post('/logout',logOut)
 app.use('/location',locationRoutes)
 app.use('/restaurant',restaurantRoutes)
 app.use('/site',siteRoutes)

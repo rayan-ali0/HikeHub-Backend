@@ -11,6 +11,10 @@ const Trail = new Schema({
         type: String,
         required: true,
     },
+    images: [{
+        type: String,
+        required: true
+    }],
     length: {
         type: Number,
         required: true,
@@ -23,13 +27,9 @@ const Trail = new Schema({
         type: Number,
         required: true
     },
-    images: {
-        type: [String],
-        required: true
-    },
     difficulty: {
         type: String,
-        enum: ['easy', 'medium', 'hard'],
+        enum: ['Easy', 'Medium', 'Hard'],
     },
     sites: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -39,6 +39,10 @@ const Trail = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location',
     },
+    slug:{
+        type:String,
+        required:true
+    }
 
 }
     ,

@@ -10,5 +10,6 @@ eventRoutes.get('/read',  eventController.getEvents)
 eventRoutes.get('/read/:id',  eventController.getEvent)
 eventRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),eventController.updateEvent)
 eventRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), eventController.deleteEvent)
-
+eventRoutes.get('/filter',eventController.getByFilter)
+eventRoutes.put('/addUser',verifyToken ,checkRole(['user','organizer']),eventController.addUserToEvent )
 export default eventRoutes

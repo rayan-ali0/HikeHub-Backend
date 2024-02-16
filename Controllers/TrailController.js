@@ -1,18 +1,25 @@
 import Trail from "../Models/Trail.js";
 import Location from '../Models/Location.js'
 import Site from '../Models/Site.js'
+import slugify from "slugify";
 
 export const trailController = {
     addTrail: async (req, res) => {
-        const { title, description, length, seaLevel, walkingTime, difficulty, sites, location } = req.body
+        const { title, description, length, seaLevel, walkingTime, difficulty, sitess, location } = req.body
         const images = req.files.map(image => image.path)
-
+console.log(sitess)
+const sites= JSON.parse(sitess)
         try {
             if (!title || !description || !length || !seaLevel || !walkingTime || !images || !(images.length > 0) || !difficulty) {
                 return res.status(400).json({ message: "Fields are required" })
 
             }
-            const trail = await Trail.create({ title, description, length, seaLevel, walkingTime, difficulty, sites, location, images })
+            const titleExist = await Trail.findOne({title})
+            if(titleExist){
+                return res.status(400).json({meesage:"Trail Name Already Exist"})
+            }
+            const slug=slugify(title,{lower:true})
+            const trail = await Trail.create({ title, description, length, seaLevel, walkingTime, difficulty, sites, location, images,slug })
             if (trail) {
                 return res.status(200).json(trail)
             }
@@ -31,7 +38,7 @@ export const trailController = {
 
             const trails = await Trail.find();
             if (trails) {
-                return res.status(200).json(trails)
+                return res.status(200).json(trails).populate(['sites', 'location'])
             }
             else {
                 return res.status(400).json({ message: "No Trails Found" })
@@ -46,7 +53,7 @@ export const trailController = {
     getTrail: async (req, res) => {
         const id = req.params.id
         try {
-            const TrailFound = await Trail.findById(id)
+            const TrailFound = await Trail.findById(id).populate(['sites', 'location'])
             if (TrailFound) {
                 return res.status(200).json(TrailFound)
             }
@@ -128,6 +135,35 @@ export const trailController = {
         }
     }
     ,
+    // getByFiler: async (req, res) => {
+    //     const { location, difficulty, lengthInterval } = req.body
+    //     let searchBy = {};
+    //     if (location) {
+    //         searchBy.location = location;
+    //     }
+    //     if (difficulty) {
+    //         searchBy.difficulty = difficulty;
+    //     }
+    //     if (lengthInterval) {
+    //         const [lowerBound, upperBound] = lengthInterval.split(',').map(Number);
+    //         if (!isNaN(lowerBound) && !isNaN(upperBound)) {
+    //             searchBy.length = { $gte: lowerBound, $lte: upperBound };
+    //         } else {
+    //             return res.status(400).json({ message: 'Invalid lengthInterval format' });
+    //         }
+    //     }
+
+    //     try {
+
+    //         const filteredTrails = await Trail.find(searchBy)
+    //         if (filteredTrails) {
+    //             return res.status(200).json(filteredTrails)
+    //         }
+    //     }
+    //     catch (error) {
+    //         return res.status(500).json({ message: error.message })
+    //     }
+    // }
 
 
 }

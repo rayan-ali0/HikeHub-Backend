@@ -19,6 +19,10 @@ const User = new Schema({
         type: String,
         enum: ['user', 'organizer'],
         default: 'user'
+    },
+    phone:{
+        type: Number,
+        required: true,
     }
 }
 ,

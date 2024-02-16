@@ -1,17 +1,22 @@
 import Story from "../Models/Story.js";
-
+import Event from '../Models/Event.js'
 
 export const storyController = {
     addStory: async (req, res) => {
-        const { title, description } = req.body
+        const { title, description,eventId} = req.body
         const images = req.files.map(image => image.path);
 
+
         try {
+            const event= await Event.findById(eventId)
+            if (!event){
+                return res.status(404).json({message:"Event Not Found"})
+            }
             if (!title || !description || !images || images.length === 0) {
                 return res.status(400).json({ message: "Fields are required" })
 
             }
-            const story = await Story.create({ title, description, images })
+            const story = await Story.create({ title, description, images ,date:event.date})
             if (story) {
                 return res.status(200).json(story)
             }

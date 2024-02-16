@@ -11,12 +11,8 @@ const Event = new Schema({
         type: Date,
         required: true,
     },
-    departureHr: {
-        type: Number,
-        required: true,
-    },
     arrivalHr: {
-        type: Number,
+        type: String,
         required: true,
     },
     cost: {
@@ -45,23 +41,31 @@ const Event = new Schema({
     ,
 
     meetingPoints: [{
-        id: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-        },
-        name: {
+        meetingPoint: {
             type: String,
-            required: true,
+            required: true
         },
+        // location: {
+        //     type: String,
+        //     required: true
+        // },
         time: {
-            type: Date,
-            required: true,
+            type: String,
+            required: false
         },
+
         users: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }],
+                ref: 'User',
+        }]
     }]
+    // meeting_points[]= [{"meeting_point":"location","users":[]},{"meeting_point":"location",time:"8:00",users":[]
+    ,
+    slug: {
+        type: String,
+        required: true,
+        unique: true
+    }
 
 }
     ,

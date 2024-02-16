@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export const userController = {
   register: async (req, res) => {
-    const { name, email,password, role } = req.body;
+    const { name, email,password, role ,phone} = req.body;
     try {
       if (!password || typeof password !== "string") {
         return res
@@ -22,6 +22,7 @@ export const userController = {
         email,
         password: hashedPassword,
         role: role || "user",
+        phone
       });
       await newUser.save();
 
@@ -81,7 +82,7 @@ export const userController = {
 
   updateUserById: async (req, res) => {
     try {
-      const { name, password, oldPasswordInput, role } = req.body;
+      const { name,email, password, oldPasswordInput, role,phone } = req.body;
   
       if (password && (typeof password !== "string" || password.length === 0)) {
         return res.status(400).json({ message: "Invalid password in the request body" });
@@ -101,25 +102,29 @@ export const userController = {
         if (!isOldPasswordValid) {
           return res.status(401).json({ message: "Invalid old password" });
         }
-      }
-  
-      const hashedPassword = password
+        const hashedPassword = password
         ? await bcrypt.hash(password, 10)
         : undefined;
+
+        user.password=hashedPassword
+      }
   
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        {
-          name,
-          number,
-          address,
-          ...(hashedPassword && { password: hashedPassword }),
-          role,
-        },
-        {
-          new: true,
+    
+        if(name){
+          user.name=name
         }
-      );
+  
+        if(email){
+          user.email=email
+        }
+
+        if(role){
+          user.role=role
+        }
+        if(phone){
+          user.phone=phone
+        }
+        const updatedUser= await user.save()
   
       return  res.status(200).json(updatedUser);
     } catch (error) {
