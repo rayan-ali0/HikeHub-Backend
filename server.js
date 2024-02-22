@@ -15,7 +15,7 @@ import trailRoutes from './Routes/TrailRoutes.js'
 import eventRoutes from "./Routes/EventRoutes.js";
 import {login} from './Middlwares/UserAuth.js'
 import {logOut} from './Middlwares/UserAuth.js'
-
+import subscriberRoutes from './Routes/SubscriberRoutes.js'
 const app = express();
 app.use(express.json())
 
@@ -57,3 +57,4 @@ app.use('/story',storyRoutes)
 app.use('/user',userRoutes)
 app.use('/trail',trailRoutes)
 app.use('/event',eventRoutes)
+app.use('/subscribe',subscriberRoutes)
