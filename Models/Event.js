@@ -24,6 +24,10 @@ const Event = new Schema({
         enum: ['ongoing', 'postponed'],
         default: 'ongoing'
     },
+    maxSeats:{
+        type: Number,
+        required: true
+    },
     restaurants: {
         breakfast: {
             type: mongoose.Schema.Types.ObjectId,
@@ -45,21 +49,23 @@ const Event = new Schema({
             type: String,
             required: true
         },
-        // location: {
-        //     type: String,
-        //     required: true
-        // },
         time: {
             type: String,
             required: false
         },
 
         users: [{
-            type: mongoose.Schema.Types.ObjectId,
+            user:{
+                type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
+            },
+            paid:{
+                type:Boolean,
+                default:false
+            }
+          
         }]
     }]
-    // meeting_points[]= [{"meeting_point":"location","users":[]},{"meeting_point":"location",time:"8:00",users":[]
     ,
     slug: {
         type: String,

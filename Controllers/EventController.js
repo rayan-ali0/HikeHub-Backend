@@ -3,14 +3,14 @@ import Trail from "../Models/Trail.js";
 import Location from '../Models/Location.js'
 import Site from '../Models/Site.js'
 import slugify from "slugify";
-import { format ,parse} from 'date-fns';
+import { format, parse } from 'date-fns';
 
 export const eventController = {
     addEvent: async (req, res) => {
-        const { trail, date, arrivalHr, cost, restaurants, tools, meetingPoints } = req.body
+        const { trail, date, arrivalHr, cost, restaurants, tools, meetingPoints, maxSeats } = req.body
 
         try {
-            if (!trail || !date  || !arrivalHr || !cost || !meetingPoints) {
+            if (!trail || !date || !arrivalHr || !cost || !meetingPoints) {
                 console.log("fields required")
                 return res.status(400).json(req.body)
             }
@@ -21,16 +21,15 @@ export const eventController = {
             const slug = slugify(`${trailFound.title} ${date}`, {
                 lower: true,
             })
-            const formattedDate = parse(date, 'yyyy-mm-dd', new Date());
-            // const formattedArrivalHr = format(new Date(`2000-01-01T${arrivalHr}:00`), 'h:mm a');
-            // const formattedMeetingPoints = meetingPoints.map(point => ({
-            //     ...point,
-            //     time: parse(point.time, 'H:mm', new Date())
-            // }));
-
-            const event = await Event.create({ trail, date:formattedDate, arrivalHr, 
-                cost, status: "ongoing", restaurants :restaurants,
-                 tools:tools, meetingPoints, slug })
+            // const formattedDate = parse(date, 'yyyy-mm-dd');
+            const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
+            const formattedDate = format(parsedDate, 'yyyy-MM-dd');
+                        console.log(formattedDate)
+            const event = await Event.create({
+                trail, date: formattedDate, arrivalHr,
+                cost, status: "ongoing", restaurants: restaurants,
+                tools: tools, meetingPoints, slug, maxSeats
+            })
 
             if (event) {
                 return res.status(200).json(event)
@@ -45,10 +44,11 @@ export const eventController = {
         }
     }
     ,
+
     getEvents: async (req, res) => {
         try {
 
-            const Events = await Event.find().sort({ "createdAt": -1 }).populate('trail');
+            const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch','meetingPoints.users.user']);
             if (Events) {
                 return res.status(200).json(Events)
             }
@@ -60,6 +60,41 @@ export const eventController = {
         catch (error) {
             return res.status(500).json({ message: error.message })
         }
+    }
+    ,
+    getOngoing: async (req, res) => {
+        try {
+            const currentDate = new Date();
+            console.log(currentDate)
+            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch']);
+            if (Events) {
+                return res.status(200).json(Events)
+            }
+            else {
+                return res.status(400).json({ message: "No Events Found" })
+            }
+
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
+    },
+    getUpcoming: async (req, res) => {
+        try {
+
+            const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch']).limit(5);
+            if (Events) {
+                return res.status(200).json(Events)
+            }
+            else {
+                return res.status(400).json({ message: "No Events Found" })
+            }
+
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
+
     }
     ,
     getEvent: async (req, res) => {
@@ -77,10 +112,30 @@ export const eventController = {
         catch (error) {
             return res.status(500).json({ message: error.message })
         }
+    },
+    getSlug: async (req, res) => {
+        const slug = req.params.slug
+        try {
+            const EventFound = await Event.findOne({ slug: slug }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch'])
+            if (EventFound) {
+                const totalUsersInEvent = EventFound.meetingPoints.reduce((total, point) => total + point.users.length, 0);
+                // if (totalUsersInEvent >= EventFound.maxSeats) {
+                //     return res.status(400).json({ message: 'No more seats available for the entire event' });
+                // }
+                return res.status(200).json({ event: EventFound, availableSeats: EventFound.maxSeats - totalUsersInEvent })
+            }
+            else {
+                return res.status(400).json({ message: "Event Not Found" })
+
+            }
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
     }
     ,
     updateEvent: async (req, res) => {
-        const { id, trail, date, departureHr, arrivalHr, cost, restaurants, tools, meetingPoints } = req.body
+        const { id, trail, date, departureHr, arrivalHr, cost, restaurants, tools, meetingPoints, maxSeats } = req.body
         try {
             if (!id) {
                 return res.status(400).json({ message: "You Should Provide The ID" })
@@ -98,6 +153,7 @@ export const eventController = {
             if (restaurants) existingEvent.restaurants = restaurants;
             if (tools) existingEvent.tools = tools;
             if (meetingPoints) existingEvent.meetingPoints = meetingPoints;
+            if (maxSeats) existingEvent.maxSeats = maxSeats
 
             if (date && existingEvent.date && new Date(date) > existingEvent.date) {
                 existingEvent.status = 'postponed';
@@ -134,14 +190,16 @@ export const eventController = {
     getByFilter: async (req, res) => {
         const { location, difficulty, lengthInterval } = req.body
         let searchBy = {};
-        if (location) {
+        if (location && location !== null) {
             searchBy.location = location;
         }
-        if (difficulty) {
+        if (difficulty && difficulty !== null) {
             searchBy.difficulty = difficulty;
         }
         if (lengthInterval) {
-            const [lowerBound, upperBound] = lengthInterval.split(',').map(Number);
+            const lowerBound = lengthInterval[0]
+            const upperBound = lengthInterval[1]
+            // const [lowerBound,upperBound] = lengthInterval.split(',').map(Number);
             if (!isNaN(lowerBound) && !isNaN(upperBound)) {
                 searchBy.length = { $gte: lowerBound, $lte: upperBound };
             } else {
@@ -153,9 +211,9 @@ export const eventController = {
             const filteredTrails = await Trail.find(searchBy)
             if (filteredTrails) {
                 const trailIds = filteredTrails.map(trail => trail._id);
-
+                const currentDate = new Date()
                 // Find events associated with the filtered trails
-                const filteredEvents = await Event.find({ trail: { $in: trailIds } })
+                const filteredEvents = await Event.find({ trail: { $in: trailIds }, date: { $gt: currentDate } })
                     .populate('trail')
                     .exec();
 
@@ -173,36 +231,42 @@ export const eventController = {
         try {
             if (!eventId || !meetingPoint || !userId) {
                 return res.status(400).json({ message: 'Please provide eventId, meetingPoint, and userId' });
-              }
+            }
 
-            const event=await Event.findById(eventId)
-            if(!event){
-                return res.status(404).json({ message: "Event Not Found" })
+            const event = await Event.findById(eventId)
+            if (!event) {
+                return res.status(404).json({  message: "Event Not Found" })
             }
             const isUserAlreadyAssigned = event.meetingPoints.some(point =>
-                point.users.includes(userId)
+                point.users.some(user => user.user.toString() === userId)
             );
-    
+
             if (isUserAlreadyAssigned) {
-                return res.status(400).json({ message: 'User is already assigned to a meeting point in this event' });
+                return res.status(200).json({ status:'error',message: 'You are already assigned to a meeting point in this event' });
             }
             const existingMeetingPoint = event.meetingPoints.find(point => point.meetingPoint === meetingPoint);
 
             if (!existingMeetingPoint) {
-              return res.status(404).json({ message: 'Meeting point not found in the event' });
+                return res.status(200).json({status:'error', message: 'Meeting point not found in the event' });
             }
-            if (existingMeetingPoint.users.includes(userId)) {
-                return res.status(400).json({ message: 'You Have already booked a place in this event' });
-              }
-              existingMeetingPoint.users.push(userId);
-              const updatedEvent = await event.save();
-              if(updatedEvent){
-                return res.status(200).json({message:"Your Seat Is Booked Successfully"});
-              }
-              else{
-                return res.status(400).json({message:" Error while Booking Your Seat. Please Try Again"});
+            if (existingMeetingPoint.users.some(user => user.user === userId)) {
+                return res.status(200).json({ status: 'error', message: 'You have already booked a place in this event' });
+            }
+            const totalUsersInEvent = event.meetingPoints.reduce((total, point) => total + point.users.length, 0);
 
-              }
+            if (totalUsersInEvent >= event.maxSeats) {
+                return res.status(200).json({status:'error',  message: 'No more seats available for the entire event' });
+            }
+
+            existingMeetingPoint.users.push({ user: userId, paid: false });
+            const updatedEvent = await event.save();
+            if (updatedEvent) {
+                return res.status(200).json({ message: "Your Seat Is Booked Successfully" });
+            }
+            else {
+                return res.status(400).json({ status:'error', message: " Error while Booking Your Seat. Please Try Again" });
+
+            }
 
         }
         catch (error) {

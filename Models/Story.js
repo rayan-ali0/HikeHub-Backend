@@ -21,6 +21,11 @@ const Story = new Schema({
         type:Date,
         required:false
     }
+    ,
+    testimonials:[{
+        type:String,
+        required:true
+    }]
 }
     ,
     {

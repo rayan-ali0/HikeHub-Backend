@@ -5,11 +5,14 @@ import {checkRole} from '../Middlwares/verifyRole.js'
 
 const eventRoutes = express.Router()
 
-eventRoutes.post('/create', verifyToken,checkRole(['organizer']),eventController.addEvent)
+eventRoutes.post('/create', eventController.addEvent)
 eventRoutes.get('/read',  eventController.getEvents)
+eventRoutes.get('/ongoing',  eventController.getOngoing)
+eventRoutes.get('/getUpcoming',  eventController.getUpcoming)
 eventRoutes.get('/read/:id',  eventController.getEvent)
+eventRoutes.get('/slug/:slug',  eventController.getSlug)
 eventRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),eventController.updateEvent)
 eventRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), eventController.deleteEvent)
-eventRoutes.get('/filter',eventController.getByFilter)
-eventRoutes.put('/addUser',verifyToken ,checkRole(['user','organizer']),eventController.addUserToEvent )
+eventRoutes.post('/filter',eventController.getByFilter)
+eventRoutes.put('/addUser',eventController.addUserToEvent )
 export default eventRoutes

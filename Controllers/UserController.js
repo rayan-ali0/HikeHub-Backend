@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 export const userController = {
   register: async (req, res) => {
     const { name, email,password, role ,phone} = req.body;
+
     try {
       if (!password || typeof password !== "string") {
         return res
@@ -22,18 +23,18 @@ export const userController = {
         email,
         password: hashedPassword,
         role: role || "user",
-        phone
+        phone,
+        image:req.file?req.file.path:null
       });
       await newUser.save();
 
-      const isSecure = process.env.NODE_ENV === "production";
       const token = jwt.sign(
         { _id: newUser._id, role: newUser.role, email, name },
         process.env.SECRET_TOKEN,
       );
       res.cookie("token", token, {
         httpOnly: true,
-        secure: isSecure,
+        secure: true,
         sameSite: "None",
       });
       return res.status(201).json({ user: newUser, token });
@@ -46,9 +47,10 @@ export const userController = {
   getOneUser: async (req, res) => {
     const userId = req.user._id;
     try {
+      // return res.json({user:req.user})
       const user = await User.findById(userId);
       if (user) {
-        return  res.status(200).json(user);
+        return  res.status(200).json({user:user});
       } else {
         return  res.status(404).json({ error: "User not found" });
       }
