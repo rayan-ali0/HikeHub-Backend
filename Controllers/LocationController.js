@@ -9,6 +9,10 @@ export const locationController = {
                 return res.status(400).json({ message: "Field name is required" })
 
             }
+            const locationExist=await Location.findOne({name})
+            if(locationExist){
+                return res.status(200).json({message:"Location Already Exist"})
+            }
             const location = await Location.create({ name})
             if (location) {
                 return res.status(200).json(location)

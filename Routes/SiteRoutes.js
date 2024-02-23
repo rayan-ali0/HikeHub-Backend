@@ -5,10 +5,10 @@ import {checkRole} from '../Middlwares/verifyRole.js'
 import uploadImage from '../Middlwares/Multer.js'
 const siteRoutes = express.Router()
 
-siteRoutes.post('/create',uploadImage.single('image'), verifyToken,checkRole(['organizer']),siteController.addSite)
+siteRoutes.post('/create',uploadImage.single('image'), siteController.addSite)
 siteRoutes.get('/read',  siteController.getSites)
 siteRoutes.get('/read/:id',  siteController.getSite)
-siteRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),siteController.updateSite)
+siteRoutes.patch('/update/:id',uploadImage.single('image'), verifyToken,checkRole(['organizer']),siteController.updateSite)
 siteRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), siteController.deleteSite)
 
 export default siteRoutes

@@ -43,7 +43,6 @@ const Event = new Schema({
         required: false
     }]
     ,
-
     meetingPoints: [{
         meetingPoint: {
             type: String,

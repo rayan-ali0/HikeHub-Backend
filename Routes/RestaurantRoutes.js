@@ -5,7 +5,7 @@ import {checkRole} from '../Middlwares/verifyRole.js'
 import uploadImage from '../Middlwares/Multer.js'
 const restaurantRoutes = express.Router()
 
-restaurantRoutes.post('/create',uploadImage.single('image'),verifyToken,checkRole(['organizer']), restaurantController.addRestaurant)
+restaurantRoutes.post('/create',uploadImage.single('image'), restaurantController.addRestaurant)
 restaurantRoutes.get('/read', verifyToken,checkRole(['organizer']), restaurantController.getRestaurants)
 restaurantRoutes.get('/read/:id', verifyToken,checkRole(['organizer']), restaurantController.getRestaurant)
 restaurantRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),restaurantController.updateRestaurant)

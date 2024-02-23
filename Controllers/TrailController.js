@@ -36,9 +36,9 @@ const sites= JSON.parse(sitess)
     getTrails: async (req, res) => {
         try {
 
-            const trails = await Trail.find();
+            const trails = await Trail.find().populate(['sites', 'location']);
             if (trails) {
-                return res.status(200).json(trails).populate(['sites', 'location'])
+                return res.status(200).json(trails)
             }
             else {
                 return res.status(400).json({ message: "No Trails Found" })

@@ -6,7 +6,7 @@ import {checkRole} from '../Middlwares/verifyRole.js'
 const eventRoutes = express.Router()
 
 eventRoutes.post('/create', eventController.addEvent)
-eventRoutes.get('/read',  eventController.getEvents)
+eventRoutes.get('/read',  verifyToken,checkRole(['organizer']), eventController.getEvents)
 eventRoutes.get('/ongoing',  eventController.getOngoing)
 eventRoutes.get('/getUpcoming',  eventController.getUpcoming)
 eventRoutes.get('/read/:id',  eventController.getEvent)

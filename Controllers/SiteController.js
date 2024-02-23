@@ -65,8 +65,9 @@ export const siteController = {
     }
     ,
     updateSite: async (req, res) => {
-        const { id, name, description } = req.body
-        const image = req.file.path;
+        const {id}=req.params
+        const { name, description } = req.body
+        const image = req.file?.path ;
         try {
             if (!id) {
                 return res.status(400).json({ message: "You Should Provide The ID" })

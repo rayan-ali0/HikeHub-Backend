@@ -7,5 +7,6 @@ const subscriberRoutes = express.Router()
 
 subscriberRoutes.post('/',SubscriberController.addSubscriber)
 subscriberRoutes.get('/',verifyToken,checkRole(['organizer']),  SubscriberController.getSubscribers)
+subscriberRoutes.delete('/:id',verifyToken,checkRole(['organizer']),  SubscriberController.deleteSubscribe)
 
 export default subscriberRoutes

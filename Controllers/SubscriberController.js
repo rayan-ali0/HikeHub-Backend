@@ -42,9 +42,24 @@ export const SubscriberController = {
         catch (error) {
             return res.status(500).json({ message: error.message })
         }
+    },
+    deleteSubscribe: async (req, res) => {
+        const {id}=req.params
+        try {
+
+            const Subscribers = await Subscriber.findByIdAndDelete(id)
+            if (Subscribers) {
+                return res.status(200).json(Subscribers)
+            }
+            else {
+                return res.status(400).json({ message: "No Subscribers Found" })
+            }
+
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
     }
-
-
 }
 
 export default SubscriberController;
