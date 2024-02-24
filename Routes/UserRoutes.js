@@ -8,7 +8,7 @@ export const userRoutes = express.Router();
 userRoutes.post('/register',uploadImage.single("image"),userController.register);
 userRoutes.get('/all',  userController.getAllUsers);
 userRoutes.get('/:id', verifyToken,  userController.getUserById);
-userRoutes.put('/:id', verifyToken, userController.updateUserById);
+userRoutes.put('/:id',uploadImage.single("image"),verifyToken, userController.updateUserById);
 userRoutes.delete('/:id',verifyToken,checkRole(['organizer']),  userController.deleteUserById);
 userRoutes.get('/read/logged',verifyToken, userController.getOneUser);
 

@@ -8,7 +8,7 @@ const restaurantRoutes = express.Router()
 restaurantRoutes.post('/create',uploadImage.single('image'), restaurantController.addRestaurant)
 restaurantRoutes.get('/read', verifyToken,checkRole(['organizer']), restaurantController.getRestaurants)
 restaurantRoutes.get('/read/:id', verifyToken,checkRole(['organizer']), restaurantController.getRestaurant)
-restaurantRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),restaurantController.updateRestaurant)
+restaurantRoutes.patch('/update/:id', uploadImage.single('image'),verifyToken,checkRole(['organizer']),restaurantController.updateRestaurant)
 restaurantRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), restaurantController.deleteRestaurant)
 
 export default restaurantRoutes

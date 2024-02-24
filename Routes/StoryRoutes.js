@@ -8,7 +8,7 @@ const storyRoutes = express.Router()
 storyRoutes.post('/create',uploadImage.array('images'), storyController.addStory)
 storyRoutes.get('/read',  storyController.getStories)
 storyRoutes.get('/read/:id',  storyController.getStory)
-storyRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),storyController.updateStory)
+storyRoutes.patch('/update/:id', uploadImage.array('images'),verifyToken,checkRole(['organizer']),storyController.updateStory)
 storyRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), storyController.deleteStory)
 
 export default storyRoutes

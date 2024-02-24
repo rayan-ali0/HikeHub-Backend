@@ -65,8 +65,11 @@ export const storyController = {
     }
     ,
     updateStory: async (req, res) => {
-        const { id, title, description } = req.body
-        const images = req.files.map(image => image.path);
+        const {id}=req.params
+        const {title, description } = req.body
+        const images = req.files?.map(image => image.path);
+console.log(req.files?images:"no files")
+
         try {
             if (!id) {
                 return res.status(400).json({ message: "You Should Provide The ID" })

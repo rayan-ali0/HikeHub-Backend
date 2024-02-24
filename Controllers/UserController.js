@@ -126,8 +126,12 @@ export const userController = {
         if(phone){
           user.phone=phone
         }
+        if(req.file){
+          user.image=req.file.path
+        }
+        console.log(req.body)
         const updatedUser= await user.save()
-  
+  console.log(updatedUser)
       return  res.status(200).json(updatedUser);
     } catch (error) {
       return  res.status(500).json({ message: error.message });
