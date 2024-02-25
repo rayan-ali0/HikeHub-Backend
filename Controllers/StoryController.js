@@ -3,19 +3,20 @@ import Event from '../Models/Event.js'
 
 export const storyController = {
     addStory: async (req, res) => {
-        const { title, description,eventId,testimonials} = req.body
+        const { title, description, eventId, testimonials } = req.body
         const images = req.files.map(image => image.path);
+        console.log(req.body)
 
 
         try {
-            const event= await Event.findById(eventId)
-            if (!event){
-                return res.status(404).json({message:"Event Not Found"})
+            const event = await Event.findById(eventId)
+            if (!event) {
+                return res.status(404).json({ message: "Event Not Found" })
             }
             if (!title || !description || !images || images.length === 0) {
                 return res.status(400).json({ message: "Fields are required" })
             }
-            const story = await Story.create({ title, description, images ,date:event.date,testimonials:JSON.parse(testimonials)})
+            const story = await Story.create({ title, description, images, eventId, testimonials: JSON.parse(testimonials) })
             if (story) {
                 return res.status(200).json(story)
             }
@@ -32,7 +33,7 @@ export const storyController = {
     getStories: async (req, res) => {
         try {
 
-            const stories = await Story.find().sort({ createdAt: -1 });
+            const stories = await Story.find().sort({ createdAt: -1 }).populate('eventId');
             if (stories) {
                 return res.status(200).json(stories)
             }
@@ -65,11 +66,12 @@ export const storyController = {
     }
     ,
     updateStory: async (req, res) => {
-        const {id}=req.params
-        const {title, description } = req.body
+        const { id } = req.params
+        const { title, description ,eventId ,testimonials} = req.body
         const images = req.files?.map(image => image.path);
-console.log(req.files?images:"no files")
+        console.log(req.files ? images : "no files")
 
+        // const feedbacks= JSON.parse(testimonials)
         try {
             if (!id) {
                 return res.status(400).json({ message: "You Should Provide The ID" })
@@ -80,6 +82,8 @@ console.log(req.files?images:"no files")
                 return res.status(404).json({ message: "Story Doesn't Exist" });
             }
             if (title) existingStory.title = title;
+            if (eventId) existingStory.eventId = eventId;
+
             if (description) existingStory.description = description;
             if (images && images.length > 0) existingStory.images = images;
 

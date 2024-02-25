@@ -20,6 +20,10 @@ const Story = new Schema({
     date:{
         type:Date,
         required:false
+    },
+    eventId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event',
     }
     ,
     testimonials:[{
