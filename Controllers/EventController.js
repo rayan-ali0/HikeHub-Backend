@@ -4,6 +4,7 @@ import Location from '../Models/Location.js'
 import Site from '../Models/Site.js'
 import slugify from "slugify";
 import { format, parse } from 'date-fns';
+import User from '../Models/User.js';
 
 export const eventController = {
     addEvent: async (req, res) => {
@@ -24,7 +25,7 @@ export const eventController = {
             // const formattedDate = parse(date, 'yyyy-mm-dd');
             const parsedDate = parse(date, 'yyyy-MM-dd', new Date());
             const formattedDate = format(parsedDate, 'yyyy-MM-dd');
-                        console.log(formattedDate)
+            console.log(formattedDate)
             const event = await Event.create({
                 trail, date: formattedDate, arrivalHr,
                 cost, status: "ongoing", restaurants: restaurants,
@@ -48,7 +49,7 @@ export const eventController = {
     getEvents: async (req, res) => {
         try {
 
-            const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch','meetingPoints.users.user']);
+            const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user']);
             if (Events) {
                 return res.status(200).json(Events)
             }
@@ -235,19 +236,19 @@ export const eventController = {
 
             const event = await Event.findById(eventId)
             if (!event) {
-                return res.status(404).json({  message: "Event Not Found" })
+                return res.status(404).json({ message: "Event Not Found" })
             }
             const isUserAlreadyAssigned = event.meetingPoints.some(point =>
                 point.users.some(user => user.user.toString() === userId)
             );
 
             if (isUserAlreadyAssigned) {
-                return res.status(200).json({ status:'error',message: 'You are already assigned to a meeting point in this event' });
+                return res.status(200).json({ status: 'error', message: 'You are already assigned to a meeting point in this event' });
             }
             const existingMeetingPoint = event.meetingPoints.find(point => point.meetingPoint === meetingPoint);
 
             if (!existingMeetingPoint) {
-                return res.status(200).json({status:'error', message: 'Meeting point not found in the event' });
+                return res.status(200).json({ status: 'error', message: 'Meeting point not found in the event' });
             }
             if (existingMeetingPoint.users.some(user => user.user === userId)) {
                 return res.status(200).json({ status: 'error', message: 'You have already booked a place in this event' });
@@ -255,7 +256,7 @@ export const eventController = {
             const totalUsersInEvent = event.meetingPoints.reduce((total, point) => total + point.users.length, 0);
 
             if (totalUsersInEvent >= event.maxSeats) {
-                return res.status(200).json({status:'error',  message: 'No more seats available for the entire event' });
+                return res.status(200).json({ status: 'error', message: 'No more seats available for the entire event' });
             }
 
             existingMeetingPoint.users.push({ user: userId, paid: false });
@@ -264,9 +265,42 @@ export const eventController = {
                 return res.status(200).json({ message: "Your Seat Is Booked Successfully" });
             }
             else {
-                return res.status(400).json({ status:'error', message: " Error while Booking Your Seat. Please Try Again" });
+                return res.status(400).json({ status: 'error', message: " Error while Booking Your Seat. Please Try Again" });
 
             }
+
+        }
+        catch (error) {
+            return res.status(500).json({ message: error.message })
+        }
+    }
+    ,
+    userPaid: async (req, res) => {
+        const { userId, paidStatus, eventId } = req.body
+        try {
+            const userData = await User.findById(userId)
+            const eventData = await Event.findById(eventId)
+
+            if (!userData || eventData) {
+                return res.status(404).json({ message: "User Not Found" })
+            }
+
+            const isUserAssigned = eventData.meetingPoints.some(point =>
+                point.users.some(user => user.user.toString() === userId)
+            );
+            if (!isUserAssigned) {
+                return res.status(404).json({ message: "User Has not a seat in this event" })
+
+            }
+            // Update paid status for the user
+            eventData.meetingPoints.forEach(point => {
+                point.users.forEach(user => {99999999999999999999999999999999999999999999969
+                    if (user.user.toString() === userId) {
+                        user.paid = true; // Set the paid status to true
+                    }
+                });
+            });
+
 
         }
         catch (error) {

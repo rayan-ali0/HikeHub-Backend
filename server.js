@@ -5,7 +5,6 @@ import cookieParser from "cookie-parser";
 import "dotenv/config";
 import connectDB from "./Config/Config.js";
 import cors from "cors";
-
 import locationRoutes from './Routes/LocationRoutes.js'
 import restaurantRoutes from './Routes/RestaurantRoutes.js'
 import siteRoutes from './Routes/SiteRoutes.js'
@@ -16,6 +15,7 @@ import eventRoutes from "./Routes/EventRoutes.js";
 import {login} from './Middlwares/UserAuth.js'
 import {logOut} from './Middlwares/UserAuth.js'
 import subscriberRoutes from './Routes/SubscriberRoutes.js'
+import nodemailer from 'nodemailer'
 const app = express();
 app.use(express.json())
 
@@ -58,3 +58,37 @@ app.use('/user',userRoutes)
 app.use('/trail',trailRoutes)
 app.use('/event',eventRoutes)
 app.use('/subscribe',subscriberRoutes)
+
+
+app.post('/sendEmail',async (req, res) => {
+  const { name, email ,amount} = req.body;
+console.log(req.body)
+  // Create a Nodemailer transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // e.g., 'gmail'
+    smtp: 'smtp.gmail.com',
+    auth: {
+      user: process.env.MY_EMAIL,
+      pass:  process.env.MY_PASSWORD,
+    },
+  });
+  // Set up the email options
+  const mailOptions = {
+    from: process.env.MY_EMAIL,
+    to: email, // Use the email from the form
+    subject: 'Reminder To Pay',
+    text: `Hello ${name},\n\nTo ensure your spot on the trip, please complete the payment process within the next two days.\nHere are the payment details:
+    \n\nPayment Information:\n- Payment Method: Wish Money to 76147030\n- Total Amount: ${amount}
+    `,
+  };
+
+  try {
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    console.log("done")
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});

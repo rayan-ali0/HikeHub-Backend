@@ -7,28 +7,39 @@ export const trailController = {
     addTrail: async (req, res) => {
         const { title, description, length, seaLevel, walkingTime, difficulty, sitess, location } = req.body
         const images = req.files.map(image => image.path)
-console.log(sitess)
-const sites= JSON.parse(sitess)
+        // console.log(sitess)
+        const sites = JSON.parse(sitess)
+        console.log("bodyy",req.body)
+        console.log("file",req.files)
         try {
             if (!title || !description || !length || !seaLevel || !walkingTime || !images || !(images.length > 0) || !difficulty) {
+                console.log("Fields are required")
+
                 return res.status(400).json({ message: "Fields are required" })
 
             }
-            const titleExist = await Trail.findOne({title})
-            if(titleExist){
-                return res.status(400).json({meesage:"Trail Name Already Exist"})
+            const titleExist = await Trail.findOne({ title:title })
+            if (titleExist) {
+                console.log("Trail Name Already Exist")
+                return res.status(400).json({ meesage: "Trail Name Already Exist" })
             }
-            const slug=slugify(title,{lower:true})
-            const trail = await Trail.create({ title, description, length, seaLevel, walkingTime, difficulty, sites, location, images,slug })
+            const slug = slugify(title, { lower: true })
+            const trail = await Trail.create({ title, description, length, seaLevel, walkingTime, difficulty, sites, location, images, slug })
             if (trail) {
+                console.log("Done")
+
                 return res.status(200).json(trail)
             }
             else {
+                console.log("eroor")
+
                 return res.status(400).json({ message: "Error Creating the Trail" })
 
             }
         }
         catch (error) {
+            console.log("catch")
+
             return res.status(500).json({ message: error.message })
         }
     }
