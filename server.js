@@ -16,6 +16,8 @@ import { login } from './Middlwares/UserAuth.js'
 import { logOut } from './Middlwares/UserAuth.js'
 import subscriberRoutes from './Routes/SubscriberRoutes.js'
 import nodemailer from 'nodemailer'
+import { addUser } from "./Controllers/Oauth.js";
+
 const app = express();
 app.use(express.json())
 
@@ -58,7 +60,7 @@ app.use('/user', userRoutes)
 app.use('/trail', trailRoutes)
 app.use('/event', eventRoutes)
 app.use('/subscribe', subscriberRoutes)
-
+app.use("/google",addUser)
 
 app.post('/sendEmail', async (req, res) => {
   const { name, email, amount, type } = req.body;
