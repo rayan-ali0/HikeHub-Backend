@@ -12,18 +12,18 @@ import storyRoutes from './Routes/StoryRoutes.js'
 import userRoutes from './Routes/UserRoutes.js'
 import trailRoutes from './Routes/TrailRoutes.js'
 import eventRoutes from "./Routes/EventRoutes.js";
-import {login} from './Middlwares/UserAuth.js'
-import {logOut} from './Middlwares/UserAuth.js'
+import { login } from './Middlwares/UserAuth.js'
+import { logOut } from './Middlwares/UserAuth.js'
 import subscriberRoutes from './Routes/SubscriberRoutes.js'
 import nodemailer from 'nodemailer'
 const app = express();
 app.use(express.json())
 
 app.use(session({
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-  }));
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+}));
 
 const corsOption = {
   origin: "http://localhost:3000",
@@ -33,53 +33,63 @@ const corsOption = {
 
 app.use(cors(corsOption));
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT;
-  
-app.listen(PORT, (error) =>{ 
-    if(!error) {
-        console.log("Server is Running, and App is listening on port "+ PORT) 
-    } else {
-        console.log("Error: ", error)
-    }
-} 
+
+app.listen(PORT, (error) => {
+  if (!error) {
+    console.log("Server is Running, and App is listening on port " + PORT)
+  } else {
+    console.log("Error: ", error)
+  }
+}
 );
 connectDB()
 
-app.use('/images',express.static('images'))
-app.post('/login',login)
-app.post('/logout',logOut)
-app.use('/location',locationRoutes)
-app.use('/restaurant',restaurantRoutes)
-app.use('/site',siteRoutes)
-app.use('/story',storyRoutes)
-app.use('/user',userRoutes)
-app.use('/trail',trailRoutes)
-app.use('/event',eventRoutes)
-app.use('/subscribe',subscriberRoutes)
+app.use('/images', express.static('images'))
+app.post('/login', login)
+app.post('/logout', logOut)
+app.use('/location', locationRoutes)
+app.use('/restaurant', restaurantRoutes)
+app.use('/site', siteRoutes)
+app.use('/story', storyRoutes)
+app.use('/user', userRoutes)
+app.use('/trail', trailRoutes)
+app.use('/event', eventRoutes)
+app.use('/subscribe', subscriberRoutes)
 
 
-app.post('/sendEmail',async (req, res) => {
-  const { name, email ,amount} = req.body;
-console.log(req.body)
+app.post('/sendEmail', async (req, res) => {
+  const { name, email, amount, type } = req.body;
+  console.log(req.body)
+  var message = ''
+  var subject = ''
+  if (type && type === "reminder") {
+    message = `Hello ${name},\n\nTo ensure your spot on the trip, please complete the payment process within the next two days.\nHere are the payment details:
+\n\nPayment Information:\n- Payment Method: Wish Money to 76147030\n- Total Amount: ${amount}
+`
+    subject = 'Reminder To Pay'
+  }
+  else if (type && type === "done") {
+    subject = 'Payment Confirmed'
+    message = `Hello ${name},\n\nThank you for completing the payment for the trip! Your spot is confirmed.\nSee you there!`;
+  }
   // Create a Nodemailer transporter
   const transporter = nodemailer.createTransport({
     service: 'gmail', // e.g., 'gmail'
     smtp: 'smtp.gmail.com',
     auth: {
       user: process.env.MY_EMAIL,
-      pass:  process.env.MY_PASSWORD,
+      pass: process.env.MY_PASSWORD,
     },
   });
   // Set up the email options
   const mailOptions = {
     from: process.env.MY_EMAIL,
     to: email, // Use the email from the form
-    subject: 'Reminder To Pay',
-    text: `Hello ${name},\n\nTo ensure your spot on the trip, please complete the payment process within the next two days.\nHere are the payment details:
-    \n\nPayment Information:\n- Payment Method: Wish Money to 76147030\n- Total Amount: ${amount}
-    `,
+    subject: subject,
+    text: message
   };
 
   try {

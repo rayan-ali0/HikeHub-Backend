@@ -101,7 +101,7 @@ export const eventController = {
     getEvent: async (req, res) => {
         const id = req.params.id
         try {
-            const EventFound = await Event.findById(id)
+            const EventFound = await Event.findById(id).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user'])
             if (EventFound) {
                 return res.status(200).json(EventFound)
             }
@@ -277,11 +277,12 @@ export const eventController = {
     ,
     userPaid: async (req, res) => {
         const { userId, paidStatus, eventId } = req.body
+        console.log(req.body)
         try {
             const userData = await User.findById(userId)
             const eventData = await Event.findById(eventId)
 
-            if (!userData || eventData) {
+            if (!userData || !eventData) {
                 return res.status(404).json({ message: "User Not Found" })
             }
 
@@ -289,21 +290,27 @@ export const eventController = {
                 point.users.some(user => user.user.toString() === userId)
             );
             if (!isUserAssigned) {
+                console.log("shsh")
                 return res.status(404).json({ message: "User Has not a seat in this event" })
 
             }
+            console.log(eventData)
             // Update paid status for the user
             eventData.meetingPoints.forEach(point => {
-                point.users.forEach(user => {99999999999999999999999999999999999999999999969
+                point.users.forEach(user => {
                     if (user.user.toString() === userId) {
-                        user.paid = true; // Set the paid status to true
+                        user.paid = paidStatus; 
+                        console.log(user)
+                        // Set the paid status to true
                     }
                 });
             });
-
+            await eventData.save();
+            return res.status(200).json({ message: "Paid status updated successfully" });
 
         }
         catch (error) {
+            console.log(error.message)
             return res.status(500).json({ message: error.message })
         }
     }

@@ -15,4 +15,7 @@ eventRoutes.patch('/update/:id', verifyToken,checkRole(['organizer']),eventContr
 eventRoutes.delete('/delete/:id',verifyToken,checkRole(['organizer']), eventController.deleteEvent)
 eventRoutes.post('/filter',eventController.getByFilter)
 eventRoutes.put('/addUser',eventController.addUserToEvent )
+eventRoutes.patch('/userPaid',eventController.userPaid )
+
+
 export default eventRoutes
