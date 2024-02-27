@@ -68,6 +68,14 @@ export const userController = {
       return  res.status(500).json({ message: error.message });
     }
   },
+  getTeam: async (req, res) => {
+    try {
+      const allUsers = await User.find({role:'organizer'});
+      return   res.status(200).json(allUsers);
+    } catch (error) {
+      return  res.status(500).json({ message: error.message });
+    }
+  },
 
   getUserById: async (req, res) => {
     try {
