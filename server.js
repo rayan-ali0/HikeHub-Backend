@@ -28,7 +28,7 @@ app.use(session({
 }));
 
 const corsOption = {
-  origin: "https://trailz.vercel.app/",
+  origin: ["http://localhost:3000","https://trailz.vercel.app/"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
