@@ -101,7 +101,7 @@ export const eventController = {
     getEvent: async (req, res) => {
         const id = req.params.id
         try {
-            const EventFound = await Event.findById(id).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user'])
+            const EventFound = await Event.findById(id).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user',{path: 'trail', populate: 'location'}])
             if (EventFound) {
                 return res.status(200).json(EventFound)
             }
