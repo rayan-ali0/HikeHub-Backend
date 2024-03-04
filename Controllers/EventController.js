@@ -67,7 +67,8 @@ export const eventController = {
         try {
             const currentDate = new Date();
             console.log(currentDate)
-            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch']);
+            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch' , {path: 'trail', populate: 'location'}]);
+            console.log(Events)
             if (Events) {
                 return res.status(200).json(Events)
             }
@@ -214,7 +215,7 @@ export const eventController = {
                 const currentDate = new Date()
                 // Find events associated with the filtered trails
                 const filteredEvents = await Event.find({ trail: { $in: trailIds }, date: { $gt: currentDate } })
-                    .populate('trail')
+                    .populate(['trail', 'restaurants.breakfast', 'restaurants.lunch' , {path: 'trail', populate: 'location'}])
                     .exec();
 
                 return res.status(200).json(filteredEvents)

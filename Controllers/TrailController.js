@@ -10,7 +10,7 @@ export const trailController = {
         // console.log(sitess)
         const sites = JSON.parse(sitess)
         console.log("bodyy",req.body)
-        console.log("file",req.files)
+        console.log("file",req.files    )
         try {
             if (!title || !description || !length || !seaLevel || !walkingTime || !images || !(images.length > 0) || !difficulty) {
                 console.log("Fields are required")
