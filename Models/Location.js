@@ -11,7 +11,7 @@ const Location = new Schema({
     ,
     {
         timestamps: true
-    });
+    }); 
 
 
 export default mongoose.model("Location", Location);
