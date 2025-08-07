@@ -67,7 +67,8 @@ export const eventController = {
         try {
             const currentDate = new Date();
             console.log(currentDate)
-            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch' , {path: 'trail', populate: 'location'}]);
+            // const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', { path: 'trail', populate: 'location' }]);
+            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', { path: 'trail', populate: 'location' }]);
             console.log(Events)
             if (Events) {
                 return res.status(200).json(Events)
@@ -82,8 +83,9 @@ export const eventController = {
     },
     getUpcoming: async (req, res) => {
         try {
+            const currentDate = new Date();
 
-            const Events = await Event.find().sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch']).limit(5);
+            const Events = await Event.find({ date: { $gt: currentDate } }).sort({ "createdAt": -1 }).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch']).limit(5);
             if (Events) {
                 return res.status(200).json(Events)
             }
@@ -101,7 +103,7 @@ export const eventController = {
     getEvent: async (req, res) => {
         const id = req.params.id
         try {
-            const EventFound = await Event.findById(id).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user',{path: 'trail', populate: 'location'}])
+            const EventFound = await Event.findById(id).populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', 'meetingPoints.users.user', { path: 'trail', populate: 'location' }])
             if (EventFound) {
                 return res.status(200).json(EventFound)
             }
@@ -215,7 +217,7 @@ export const eventController = {
                 const currentDate = new Date()
                 // Find events associated with the filtered trails
                 const filteredEvents = await Event.find({ trail: { $in: trailIds }, date: { $gt: currentDate } })
-                    .populate(['trail', 'restaurants.breakfast', 'restaurants.lunch' , {path: 'trail', populate: 'location'}])
+                    .populate(['trail', 'restaurants.breakfast', 'restaurants.lunch', { path: 'trail', populate: 'location' }])
                     .exec();
 
                 return res.status(200).json(filteredEvents)
@@ -299,7 +301,7 @@ export const eventController = {
             eventData.meetingPoints.forEach(point => {
                 point.users.forEach(user => {
                     if (user.user.toString() === userId) {
-                        user.paid = paidStatus; 
+                        user.paid = paidStatus;
                         console.log(user)
                         // Set the paid status to true
                     }
